@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3170965429BF63B40050FAFE /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3170965329BF63B40050FAFE /* main.cpp */; };
+		31873E7E29C0A4E100FF5D6F /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3170965329BF63B40050FAFE /* main.cpp */; };
+		31873E8029C0A59500FF5D6F /* tokenization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3170966929BFA6E90050FAFE /* tokenization.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +26,9 @@
 /* Begin PBXFileReference section */
 		3170965029BF63B40050FAFE /* quartzz */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = quartzz; sourceTree = BUILT_PRODUCTS_DIR; };
 		3170965329BF63B40050FAFE /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		3170966829BFA6BD0050FAFE /* tokenization.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = tokenization.hpp; sourceTree = "<group>"; };
+		3170966929BFA6E90050FAFE /* tokenization.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tokenization.cpp; sourceTree = "<group>"; };
+		31873E1729C01DEF00FF5D6F /* token.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = token.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,6 +45,7 @@
 		3170964729BF63B40050FAFE = {
 			isa = PBXGroup;
 			children = (
+				3170965C29BF68BC0050FAFE /* include */,
 				3170965229BF63B40050FAFE /* quartzz */,
 				3170965129BF63B40050FAFE /* Products */,
 			);
@@ -58,6 +63,24 @@
 			isa = PBXGroup;
 			children = (
 				3170965329BF63B40050FAFE /* main.cpp */,
+				3170966929BFA6E90050FAFE /* tokenization.cpp */,
+			);
+			path = quartzz;
+			sourceTree = "<group>";
+		};
+		3170965C29BF68BC0050FAFE /* include */ = {
+			isa = PBXGroup;
+			children = (
+				3170965D29BF68C80050FAFE /* quartzz */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		3170965D29BF68C80050FAFE /* quartzz */ = {
+			isa = PBXGroup;
+			children = (
+				3170966829BFA6BD0050FAFE /* tokenization.hpp */,
+				31873E1729C01DEF00FF5D6F /* token.hpp */,
 			);
 			path = quartzz;
 			sourceTree = "<group>";
@@ -119,7 +142,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3170965429BF63B40050FAFE /* main.cpp in Sources */,
+				31873E8029C0A59500FF5D6F /* tokenization.cpp in Sources */,
+				31873E7E29C0A4E100FF5D6F /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -238,7 +262,9 @@
 		3170965829BF63B40050FAFE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/include/";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -246,7 +272,9 @@
 		3170965929BF63B40050FAFE /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/include/";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
