@@ -189,7 +189,14 @@ const int tokenize (string sr) {
             else if (s == "%") {
                 tokenlist.push_back(MODULO);
             }
-          }
+            else if (s == "=") {
+                tokenlist.push_back(EQUALS);
+            }
+            // Types
+            else if (s == "String") {
+                tokenlist.push_back(TYPE_STRING);
+            }
         }
+    }
     return 0;
 }
