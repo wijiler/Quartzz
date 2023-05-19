@@ -196,6 +196,18 @@ const int tokenize (string sr) {
             else if (s == "String") {
                 tokenlist.push_back(TYPE_STRING);
             }
+            else if (s == "Int") {
+                tokenlist.push_back(TYPE_INT);
+            }
+            else if (s == "uInt") {
+                tokenlist.push_back(TYPE_UINT);
+            }
+            else if (s == "bool") {
+                tokenlist.push_back(TYPE_BOOL);
+            }
+            else if (s == "char") {
+                tokenlist.push_back(TYPE_CHAR);
+            }
         }
     }
     return 0;
