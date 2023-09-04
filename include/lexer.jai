@@ -34,9 +34,8 @@ remove_whitespace :: (str:string) -> string
     return s;
 }
 is_num :: (str:string) -> bool {
-    for 0..str.count -1 {
-        
-    }
+    //ascii number character codes from 48 - 57
+    if str[0] == 48 || str[0] == 49 || str[0] == 50 || str[0] == 51 || str[0] == 52 || str[0] == 53 || str[0] == 54 || str[0] == 55 || str[0] == 56 || str[0] == 57 then return true; else return false;
 }
 parse_string :: (str: string) -> []string 
 {
@@ -55,16 +54,23 @@ tokenize :: (src:[] string) -> [..] Token {
         // split each line on a space and then match since we are going line by line here
         str := split(src[it]," ");
         for 0..str.count - 1 {
-            tok: Token;
+            // switch on token
             if str[it] =={
                 case "return";
-                    tok.type = cast(u8) TokenType.LIT;
+                    tok: Token;
+                    tok.type = cast(u8) TokenType.RET;
                     tok.expr = "";
                     array_add(*tokens,tok);
-                    free(*tok);
-                #through;
-                case; log_error("Lexing error on line %,unknown token:\n%",line,str[it]);
+                case; 
+                if is_num(str[it]) {
+                     tok: Token;
+                     tok.type = cast(u8) TokenType.LIT;
+                     tok.expr = str[it];
+                     array_add(*tokens,tok);
+                 }
+                else log_error("Lexing error on line %,unknown token:\n%",line,str[it]);
             }
+
         }
     }
     return tokens;
@@ -73,5 +79,5 @@ tokenize :: (src:[] string) -> [..] Token {
 begin_descent :: (lex:Lexer) 
 {
         src := parse_string(lex.source);
-
+        tokenize(src);
 }

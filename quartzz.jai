@@ -10,6 +10,7 @@ main :: ()
     for 0..src.count - 1 {
         print("%\n",src[it]);
     }
+    begin_descent(lex);
 }
 
 #run main();
