@@ -1,16 +1,27 @@
 #import "Basic";
+#import "File";
 #load "include/lexer.jai";
 
 
 main :: () 
 {
-    lex:Lexer;
-    lex.source = "return 0;testing;lol";
-    src := parse_string(lex.source);
-    for 0..src.count - 1 {
-        print("%\n",src[it]);
+    args := get_command_line_arguments();
+    file: string;
+    if args.count > 1 {
+        if !read_entire_file(args[1]) {
+            exit(1);
+        }
+        else {
+            file = read_entire_file(args[1]);
+        }
     }
-    begin_descent(lex);
+    else {
+        print("Sorry you need to tell the compiler what to compile!\n");
+        exit(1);
+    }
+    lex:Lexer;
+    lex.source = file;
+    src := parse_string(lex.source);
+    lex.tokens = begin_descent(lex);
+    print("Successfully Lexed\n");
 }
-
-#run main();

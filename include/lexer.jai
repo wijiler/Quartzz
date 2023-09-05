@@ -44,12 +44,32 @@ parse_string :: (str: string) -> []string
         parsed := split(cpstr,";");
         return parsed;
 }
-
+// Function to help handle the default case,old method was getting to big
+handle_default :: (str: string,tokens: [..] Token,line:int) -> bool {
+                if str.count > 1 {
+                if is_num(str) {
+                     print("number\n");
+                     tok: Token;
+                     tok.type = cast(u8) TokenType.LIT;
+                     tok.expr = str;
+                     array_add(*tokens,tok);
+                     return false;
+                 }
+                else {
+                    log_error("Lexing error on line %,unknown token:\n%",line,str);
+                    return true;
+                }
+                line += 1;
+            }
+            else {
+                return false;
+            }
+}
 // Turn string into tokens
 tokenize :: (src:[] string) -> [..] Token {
     tokens:[..] Token;
-    line:int = 0;
-    
+    line:int = 1;
+    error:bool = false;
     for 0..src.count - 1 {
         // split each line on a space and then match since we are going line by line here
         str := split(src[it]," ");
@@ -61,23 +81,19 @@ tokenize :: (src:[] string) -> [..] Token {
                     tok.type = cast(u8) TokenType.RET;
                     tok.expr = "";
                     array_add(*tokens,tok);
-                case; 
-                if is_num(str[it]) {
-                     tok: Token;
-                     tok.type = cast(u8) TokenType.LIT;
-                     tok.expr = str[it];
-                     array_add(*tokens,tok);
-                 }
-                else log_error("Lexing error on line %,unknown token:\n%",line,str[it]);
+                case; error = handle_default(str[it],tokens,line);
             }
-
         }
+    }
+    if error == true {
+        print("due to the errors above the rest of compilation has not been completed\n");
+        exit(1);
     }
     return tokens;
 }
 
-begin_descent :: (lex:Lexer) 
+begin_descent :: (lex:Lexer) -> [..] Token
 {
         src := parse_string(lex.source);
-        tokenize(src);
+        return tokenize(src);
 }
