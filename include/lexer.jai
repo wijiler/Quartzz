@@ -3,10 +3,13 @@ Token :: struct
 {
     type: u8;
     expr: string;
+    pos: int;
 }
 TokenType :: enum u8 {
     RET :: 255;
     LIT :: 254;
+    NOTHING :: 1;
+    UNKNOWN :: 0;
 }
 Lexer :: struct 
 {
@@ -14,86 +17,100 @@ Lexer :: struct
     source: string;
 }
 
-peek :: (str: [..]string,index: int) -> string 
-{
-            assert((index < str.count) == true,"Lexer Tried to peek starting at non-existant index");
-            return str[index + 1];
-}
 // doesnt remove spaces 
-remove_whitespace :: (str:string) -> string 
+remove_nl :: (str:string) -> string 
 {
-    strcon:String_Builder;
-    init_string_builder(*strcon);
-
-    for 0..str.count - 1 {
-           // Characters are just 1 byte so we can just check
-           if str[it] != 10 || str[it] != 9 || str[it] != 13 
-           then append(*strcon,str[it]);
+    s := str;
+    // different os's have different newlines (fuck you windows)
+    if str.count > 1 {
+        if str[0] == #char "\r" || str[0] == #char "\n" {
+                #if OS == .WINDOWS {
+                    s.count -= 2;
+                    s.data += 2;
+                }
+                #if OS == .LINUX {
+                    s.count -= 1;
+                    s.data += 1;
+                }
+                #if OS == .MACOS {
+                    s.count -= 1;
+                    s.data += 1;
+                }
+        }
     }
-    s := builder_to_string(*strcon);
     return s;
 }
-is_num :: (str:string) -> bool {
-    //ascii number character codes from 48 - 57
-    if str[0] == 48 || str[0] == 49 || str[0] == 50 || str[0] == 51 || str[0] == 52 || str[0] == 53 || str[0] == 54 || str[0] == 55 || str[0] == 56 || str[0] == 57 then return true; else return false;
-}
-parse_string :: (str: string) -> []string 
+format_str :: (str: string,line:bool) -> []string 
 {
+        if line {
         // copy of str to preserve str incase we need to cross-reference 
-        cpstr := remove_whitespace(str);
+        cpstr := remove_nl(str);
+        parsed := split(cpstr," ");
+        return parsed;
+        }
+        else {
+        cpstr := remove_nl(str);
         parsed := split(cpstr,";");
         return parsed;
+        }
 }
+
+
 // Function to help handle the default case,old method was getting to big
-handle_default :: (str: string,tokens: [..] Token,line:int) -> bool {
-                if str.count > 1 {
-                if is_num(str) {
-                     print("number\n");
-                     tok: Token;
-                     tok.type = cast(u8) TokenType.LIT;
-                     tok.expr = str;
-                     array_add(*tokens,tok);
-                     return false;
-                 }
+handle_default :: (str: string,line:int) -> Token {
+                if str.count > 0 {
+                if is_digit(str[0]) {
+                    //  tok: Token;
+                    //  tok.type = cast(u8) TokenType.LIT;
+                    //  tok.expr = str;
+                    //  array_add(*tokens,tok);
+                     return Token.{cast(u8) TokenType.LIT,str,line};
+                }
                 else {
                     log_error("Lexing error on line %,unknown token:\n%",line,str);
-                    return true;
+                    return Token.{cast(u8) TokenType.UNKNOWN,str,line};
                 }
-                line += 1;
             }
             else {
-                return false;
+                return Token.{cast(u8) TokenType.NOTHING,str,line};
             }
 }
 // Turn string into tokens
-tokenize :: (src:[] string) -> [..] Token {
+tokenize :: (src:string) -> [..] Token {
     tokens:[..] Token;
     line:int = 1;
     error:bool = false;
-    for 0..src.count - 1 {
+    srccp := format_str(src,false);
+    for 0..srccp.count - 1 {
         // split each line on a space and then match since we are going line by line here
-        str := split(src[it]," ");
+        str := format_str(srccp[it],true);
         for 0..str.count - 1 {
+            print("%\n",str[it]);
             // switch on token
             if str[it] =={
                 case "return";
                     tok: Token;
                     tok.type = cast(u8) TokenType.RET;
                     tok.expr = "";
+                    tok.pos = line;
                     array_add(*tokens,tok);
-                case; error = handle_default(str[it],tokens,line);
+                case; 
+                tok: Token;
+                tok = handle_default(str[it],line);
+                array_add(*tokens,tok);
             }
+            line += 1;
         }
     }
-    if error == true {
         print("due to the errors above the rest of compilation has not been completed\n");
         exit(1);
-    }
     return tokens;
 }
+lexer_error :: (tokens: [..] Token) {
 
-begin_descent :: (lex:Lexer) -> [..] Token
-{
-        src := parse_string(lex.source);
-        return tokenize(src);
 }
+// begin_descent :: (lex:Lexer) -> [..] Token
+// {
+//         src := parse_string(lex.source);
+//         return tokenize(src);
+// }

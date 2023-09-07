@@ -21,7 +21,8 @@ main :: ()
     }
     lex:Lexer;
     lex.source = file;
-    src := parse_string(lex.source);
-    lex.tokens = begin_descent(lex);
-    print("Successfully Lexed\n");
+    lex.tokens = tokenize(lex.source);
+    for 0..lex.tokens.count - 1 {
+        print("%",lex.tokens[it]);
+    }
 }
