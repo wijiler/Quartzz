@@ -1,7 +1,6 @@
 #import "Basic";
 #import "File";
-#load "include/lexer.jai";
-
+#load "include/parser.jai";
 
 main :: () 
 {

@@ -1,0 +1,2 @@
+expr = any
+ret |expr| -> rax

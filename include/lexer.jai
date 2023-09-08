@@ -74,7 +74,8 @@ handle_default :: (str: string,line:int) -> Token {
                 return Token.{cast(u8) TokenType.NOTHING,str,line};
             }
 }
-lexer_error :: (tokens: [..] Token) -> [..] Token {
+lexer_error :: (tokens: [..] Token) -> [..] Token 
+{
         toks := tokens;
         error: bool;
         for 0..toks.count - 1 {
@@ -93,7 +94,8 @@ lexer_error :: (tokens: [..] Token) -> [..] Token {
         return toks;
 }
 // Turn string into tokens
-tokenize :: (src:string) -> [..] Token {
+tokenize :: (src:string) -> [..] Token 
+{
     tokens:[..] Token;
     line:int = 1;
     error:bool = false;
@@ -119,7 +121,7 @@ tokenize :: (src:string) -> [..] Token {
         }
     }
     toks_error_checked := lexer_error(tokens);
-    print("Succsesfully lexed the file\n");
+    print("Succesfully lexed the file\n");
     return toks_error_checked;
 }
 
