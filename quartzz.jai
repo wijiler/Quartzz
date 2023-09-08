@@ -22,7 +22,4 @@ main :: ()
     lex:Lexer;
     lex.source = file;
     lex.tokens = tokenize(lex.source);
-    for 0..lex.tokens.count - 1 {
-        print("%",lex.tokens[it]);
-    }
 }

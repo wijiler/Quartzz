@@ -67,13 +67,30 @@ handle_default :: (str: string,line:int) -> Token {
                      return Token.{cast(u8) TokenType.LIT,str,line};
                 }
                 else {
-                    log_error("Lexing error on line %,unknown token:\n%",line,str);
                     return Token.{cast(u8) TokenType.UNKNOWN,str,line};
                 }
             }
             else {
                 return Token.{cast(u8) TokenType.NOTHING,str,line};
             }
+}
+lexer_error :: (tokens: [..] Token) -> [..] Token {
+        toks := tokens;
+        error: bool;
+        for 0..toks.count - 1 {
+            if toks[it].type == 1 {
+                array_ordered_remove_by_index(*toks,it);
+            }
+            else if toks[it].type == 0 {
+                error = true;
+                print("Unknown Token found on line %:\n%\n",toks[it].pos,toks[it].expr);
+            }
+        }
+        if error == true {
+            print("could not continue compiling due to the errors above\n");
+            exit(1);
+        }
+        return toks;
 }
 // Turn string into tokens
 tokenize :: (src:string) -> [..] Token {
@@ -85,7 +102,6 @@ tokenize :: (src:string) -> [..] Token {
         // split each line on a space and then match since we are going line by line here
         str := format_str(srccp[it],true);
         for 0..str.count - 1 {
-            print("%\n",str[it]);
             // switch on token
             if str[it] =={
                 case "return";
@@ -102,15 +118,8 @@ tokenize :: (src:string) -> [..] Token {
             line += 1;
         }
     }
-        print("due to the errors above the rest of compilation has not been completed\n");
-        exit(1);
-    return tokens;
+    toks_error_checked := lexer_error(tokens);
+    print("Succsesfully lexed the file\n");
+    return toks_error_checked;
 }
-lexer_error :: (tokens: [..] Token) {
 
-}
-// begin_descent :: (lex:Lexer) -> [..] Token
-// {
-//         src := parse_string(lex.source);
-//         return tokenize(src);
-// }
