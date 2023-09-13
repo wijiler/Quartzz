@@ -1,1 +1,4 @@
-func main ( ) { }
+func main !! () 
+{ 
+return 0;
+}

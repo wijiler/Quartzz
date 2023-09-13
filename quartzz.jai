@@ -21,5 +21,5 @@ main :: ()
     lex:Lexer;
     lex.source = file;
     lex.tokens = tokenize(lex.source);
-    parse(lex.tokens);
+    //parse(lex.tokens);
 }

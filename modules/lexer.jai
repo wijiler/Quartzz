@@ -1,5 +1,3 @@
-#import "String";
-#import "Basic";
 Token :: struct 
 {
     type: u8;
@@ -16,6 +14,7 @@ TokenType :: enum u8 {
     LPAREN :: 249;
     RPAREN :: 248;
     IDENT :: 247;
+    EMPTYARGS :: 246;
     NOTHING :: 1;
     UNKNOWN :: 0;
 }
@@ -28,25 +27,22 @@ Lexer :: struct
 remove_nl :: (str:string) -> string 
 {
     s := str;
+    
     // different os's have different newlines (fuck you windows)
     if str.count > 1 {
-        if str[0] == #char "\r" || str[0] == #char "\n" {
-                #if OS == .WINDOWS {
-                    s.count -= 2;
-                    s.data += 2;
+        for 0..s.count - 1 {
+            if it < s.count - 1 {
+                if s[it] == #char "\r" || s[it] == #char "\n" { 
+                    string_remove_by_index(*s,it);
                 }
-                #if OS == .LINUX {
-                    s.count -= 1;
-                    s.data += 1;
-                }
-                #if OS == .MACOS {
-                    s.count -= 1;
-                    s.data += 1;
-                }
+            }
         }
     }
+    // more print debugging
+    //print("%\n",s);
     return s;
 }
+// simple preprocessing
 format_str :: (str: string,line:bool) -> []string 
 {
         if line {
@@ -58,6 +54,7 @@ format_str :: (str: string,line:bool) -> []string
         else {
         cpstr := remove_nl(str);
         parsed := split(cpstr,";");
+        
         return parsed;
         }
 }
@@ -80,6 +77,7 @@ handle_default :: (str: string,line:int,tokens: [..] Token,it:int) -> Token {
                 return Token.{cast(u8) TokenType.NOTHING,str,line};
             }
 }
+
 lexer_error :: (tokens: [..] Token) -> [..] Token 
 {
         toks := tokens;
@@ -121,6 +119,7 @@ tokenize :: (src:string) -> [..] Token
                 case "}"; array_add(*tokens,Token.{cast(u8) RBRACK,"",line});
                 case "("; array_add(*tokens,Token.{cast(u8) LPAREN,"",line});
                 case ")"; array_add(*tokens,Token.{cast(u8) RPAREN,"",line});
+                case "()"; array_add(*tokens,Token.{cast(u8) EMPTYARGS,"",line});
                 case "!!"; array_add(*tokens,Token.{cast(u8) MAIN_TAG,"",line});
                 case "func"; array_add(*tokens,Token.{cast(u8) FUNC,"",line});
                 case; array_add(*tokens,handle_default(str[it],line,tokens,it));
@@ -133,3 +132,6 @@ tokenize :: (src:string) -> [..] Token
     return toks_error_checked;
 }
 
+#import "String";
+#import "Basic";
+#import "stringextras";
