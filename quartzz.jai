@@ -1,7 +1,7 @@
 #import "Basic";
 #import "File";
-#load "include/parser.jai";
-
+#import "lexer";
+#import "parser";
 main :: () 
 {
     args := get_command_line_arguments();
@@ -21,4 +21,5 @@ main :: ()
     lex:Lexer;
     lex.source = file;
     lex.tokens = tokenize(lex.source);
+    parse(lex.tokens);
 }

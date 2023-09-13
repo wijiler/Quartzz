@@ -1,1 +1,1 @@
-jai quartzz.jai
+jai -import_dir ".\modules" quartzz.jai
