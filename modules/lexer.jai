@@ -70,7 +70,11 @@ handle_default :: (str: string,line:int,tokens: [..] Token,it:int) -> Token {
                         return Token.{cast(u8) TokenType.IDENT,str,line};
                     }
                     else {
-                        return Token.{cast(u8) TokenType.UNKNOWN,str,line};
+                        s:string = str;
+                        // remove first char
+                        s.data += 1;
+                        s.count -= 1;
+                        return smoltokenize(s,line);
                     }
             }
             else {
@@ -131,7 +135,21 @@ tokenize :: (src:string) -> [..] Token
     print("Succesfully lexed the file\n");
     return toks_error_checked;
 }
-
+// Keep in sync with @tokenize
+smoltokenize :: (tok:string,line:int) -> Token {
+            using TokenType;
+            if tok =={
+                case "return"; return Token.{cast(u8) RET,"",line};
+                case "{"; return Token.{cast(u8) LBRACK,"",line};
+                case "}"; return Token.{cast(u8) RBRACK,"",line};
+                case "("; return Token.{cast(u8) LPAREN,"",line};
+                case ")"; return Token.{cast(u8) RPAREN,"",line};
+                case "()"; return Token.{cast(u8) EMPTYARGS,"",line};
+                case "!!"; return Token.{cast(u8) MAIN_TAG,"",line};
+                case "func"; return Token.{cast(u8) FUNC,"",line};
+                case; return Token.{cast(u8) UNKNOWN,tok,line};
+            }  
+}
 #import "String";
 #import "Basic";
 #import "stringextras";
