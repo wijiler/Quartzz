@@ -6,12 +6,17 @@ LiteralExpr :: struct {
     value: string;
 }
 ReturnExpr :: struct {
-    args: LiteralExpr;
+    count:u64;
+}
+
+FunctionExpr :: struct {
+    count:u64;
 }
 
 Expression :: union { 
     Variable: LiteralExpr;
     Return: ReturnExpr;
+    Function: FunctionExpr; // function count
 }
 Node :: struct 
 {
@@ -23,20 +28,38 @@ AST :: struct {
     Root:Node;
 }
 
-parse :: (tokens:[..] Token) -> AST
+parse_node :: (tokens:[..] Token) -> [..] Node #expand
 {
-    exprarr:[..] Expression;
+    nodearr:[..] Node;
     for 0..tokens.count - 1 {
         if tokens[it].type == {
-            case 255; array_add(*exprarr,parse_return(tokens,it));
-            case 254; array_add(*exprarr,parse_lit(tokens[it],"variable"));
+            case 255; array_add(*nodearr,parse_return(tokens,it));
+            case 254; array_add(*nodearr,parse_lit(tokens[it]));
             case;;
         }
     }
-    print("Succesfully parsed % tokens",tokens.count);
-    root:Node;
-    root.Value = exprarr[0];
-    ast:AST = AST.{root};
+    
+    return nodearr;
+}
+
+parse :: (tokens:[..] Token) -> AST
+{
+    nodearr:[..] Node;
+    for 0..tokens.count - 1 {
+        if tokens[it].type == {
+            case 255; array_add(*nodearr,parse_return(tokens,it));
+            case 254; array_add(*nodearr,parse_lit(tokens[it]));
+            case 253; 
+            node,skip := parse_function(tokens,it);
+            array_add(*nodearr,node);
+            it += cast(s64) skip;
+            case;;
+        }
+    }
+    print("Succesfully parsed % tokens\nnodearr:%\n",tokens.count,nodearr);
+    ast:AST = AST.{nodearr[0]};
     
     return ast;
 }
+
+// "Growing trees?!    I thought this was computer science not botany class"
