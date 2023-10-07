@@ -1,7 +1,4 @@
-#import "lexer";
-#import "File";
-#import "Basic";
-#import "parsefunctions";
+
 LiteralExpr :: struct {
     value: string;
 }
@@ -9,7 +6,16 @@ ReturnExpr :: struct {
     count:u64;
 }
 
+ftag :: enum {
+    FT_ENTRY;
+    FT_ASYNC;
+    FT_META;
+    FT_NONE;
+    FT_ERR;
+}
+
 FunctionExpr :: struct {
+    type:ftag;
     count:u64;
 }
 
@@ -57,9 +63,22 @@ parse :: (tokens:[..] Token) -> AST
         }
     }
     print("Succesfully parsed % tokens\nnodearr:%\n",tokens.count,nodearr);
-    ast:AST = AST.{nodearr[0]};
-    
+    ep:int = -1;
+    for 0..nodearr.count - 1 {
+        if nodearr[it].Value.Function.type == .FT_ENTRY {
+            ep = it;
+        }
+    }
+    if ep == -1 {
+        print("No entrypoint for software");
+        exit(1);
+    }
+    ast:AST = AST.{nodearr[ep]};
     return ast;
 }
 
 // "Growing trees?!    I thought this was computer science not botany class"
+#import "lexer";
+#import "File";
+#import "Basic";
+#import "parsefunctions";

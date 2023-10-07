@@ -23,38 +23,24 @@ Lexer :: struct
     tokens: [..] Token; // resizable array of tokens
     source: string;
 }
-// doesnt remove spaces 
-remove_nl :: (str:string) -> string 
-{
-    s := str;
-    
-    // different os's have different newlines (fuck you windows)
-    if str.count > 1 {
-        for 0..s.count - 1 {
-            if it < s.count - 1 {
-                if s[it] == #char "\r" || s[it] == #char "\n" { 
-                    string_remove_by_index(*s,it);
-                }
-            }
-        }
-    }
-    // more print debugging
-    //print("%\n",s);
-    return s;
-}
+
 // simple preprocessing
 format_str :: (str: string,line:bool) -> []string 
 {
         if line {
         // copy of str to preserve str incase we need to cross-reference 
-        cpstr := remove_nl(str);
-        parsed := split(cpstr," ");
+        //cpstr := remove_nl(str);
+        parsed := split(str," ");
         return parsed;
         }
         else {
-        cpstr := remove_nl(str);
-        parsed := split(cpstr,";");
-        
+        //cpstr := remove_nl(str);
+        #if OS == .WINDOWS {
+        parsed := split(str,"\r\n");
+        }
+        else {
+        parsed := split(str,"\n");
+        }
         return parsed;
         }
 }
@@ -126,6 +112,7 @@ tokenize :: (src:string) -> [..] Token
                 case "()"; array_add(*tokens,Token.{cast(u8) EMPTYARGS,"",line});
                 case "!!"; array_add(*tokens,Token.{cast(u8) MAIN_TAG,"",line});
                 case "func"; array_add(*tokens,Token.{cast(u8) FUNC,"",line});
+                case "";;
                 case; array_add(*tokens,handle_default(str[it],line,tokens,it));
             }  
         }
@@ -147,6 +134,7 @@ smoltokenize :: (tok:string,line:int) -> Token {
                 case "()"; return Token.{cast(u8) EMPTYARGS,"",line};
                 case "!!"; return Token.{cast(u8) MAIN_TAG,"",line};
                 case "func"; return Token.{cast(u8) FUNC,"",line};
+                case "";;
                 case; return Token.{cast(u8) UNKNOWN,tok,line};
             }  
 }
