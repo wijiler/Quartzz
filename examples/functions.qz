@@ -1,9 +1,8 @@
 func main !! () 
 {
-    String test = 1
+    Int test = 2
+    String test2 = "plplqweqwe"
+    uInt foo = 34
+    char bar = 'l'
     return 0
-}
-
-func lol () {
-    return 1
 }

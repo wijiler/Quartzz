@@ -11,16 +11,22 @@ ftag :: enum {
     FT_ASYNC;
     FT_META;
     FT_NONE;
-    FT_ERR;
 }
 
 FunctionExpr :: struct {
     type:ftag;
+    symbol:string;
     count:u64;
 }
 
+VarExpr :: struct {
+    name:string;
+    immutable:bool;
+}
+
 Expression :: union { 
-    Variable: LiteralExpr;
+    Literal: LiteralExpr;
+    Var: VarExpr;
     Return: ReturnExpr;
     Function: FunctionExpr; // function count
 }
@@ -34,6 +40,7 @@ AST :: struct {
     Root:Node;
 }
 
+
 parse_node :: (tokens:[..] Token) -> [..] Node #expand
 {
     nodearr:[..] Node;
@@ -41,6 +48,26 @@ parse_node :: (tokens:[..] Token) -> [..] Node #expand
         if tokens[it].type == {
             case 255; array_add(*nodearr,parse_return(tokens,it));
             case 254; array_add(*nodearr,parse_lit(tokens[it]));
+            case 253; 
+            node,skip := parse_function(tokens,it);
+            array_add(*nodearr,node);
+            it += cast(s64) skip;
+            case 245;
+            node,skip := parse_var(tokens,it);
+            array_add(*nodearr,node);
+            it += skip;
+            case 244; 
+            node,skip := parse_var(tokens,it);
+            array_add(*nodearr,node);
+            it += skip;
+            case 243;
+            node,skip := parse_var(tokens,it);
+            array_add(*nodearr,node);
+            it += skip;
+            case 242;
+            node,skip := parse_var(tokens,it);
+            array_add(*nodearr,node);
+            it += skip;
             case;;
         }
     }
@@ -59,6 +86,22 @@ parse :: (tokens:[..] Token) -> AST
             node,skip := parse_function(tokens,it);
             array_add(*nodearr,node);
             it += cast(s64) skip;
+            case 245; 
+            node,skip := parse_var(tokens,it);
+            array_add(*nodearr,node);
+            it += skip;
+            case 244; 
+            node,skip := parse_var(tokens,it);
+            array_add(*nodearr,node);
+            it += skip;
+            case 243;
+            node,skip := parse_var(tokens,it);
+            array_add(*nodearr,node);
+            it += skip;
+            case 242;
+            node,skip := parse_var(tokens,it);
+            array_add(*nodearr,node);
+            it += skip;
             case;;
         }
     }

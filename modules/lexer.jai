@@ -31,21 +31,41 @@ Lexer :: struct
     tokens: [..] Token; // resizable array of tokens
     source: string;
 }
-
+// doesnt remove spaces 
+remove_ws :: (str:string) -> string 
+{
+    s := str;
+    
+    // different os's have different newlines (fuck you windows)
+    if str.count > 1 {
+        for 0..s.count - 1 {
+            if it < s.count - 1 {
+                if s[it] == #char "\t" { 
+                    string_remove_by_index(*s,it);
+                }
+            }
+        }
+    }
+    // more print debugging
+    //print("%\n",s);
+    return s;
+}
 // simple preprocessing
 format_str :: (str: string,line:bool) -> []string 
 {
         if line {
             // copy of str to preserve str incase we need to cross-reference 
-            parsed := split(str," ");
+            cs := remove_ws(str);
+            parsed := split(cs," ");
             return parsed;
         }
         else {
+            cs := remove_ws(str);
             #if OS == .WINDOWS {
-            parsed := split(str,"\r\n");
+            parsed := split(cs,"\r\n");
             }
             else {
-            parsed := split(str,"\n");
+            parsed := split(cs,"\n");
             }
             return parsed;
         }
@@ -54,16 +74,12 @@ format_str :: (str: string,line:bool) -> []string
 
 // Function to help handle the default case,old method was getting too big
 handle_default :: (str: string,line:int,tokens: [..] Token,it:int) -> Token {
+                using TokenType;
                 if str.count > 0 {
                     if is_digit(str[0]) {
-                            return Token.{cast(u8) TokenType.LIT,str,line};
+                            return Token.{cast(u8) LIT,str,line};
                     }
-                    else if tokens[it - 1].type == cast(u8) TokenType.FUNC ||  tokens[it - 1].type == cast(u8) TokenType.INTTYPE || tokens[it - 1].type == cast(u8) TokenType.CHARTYPE || tokens[it - 1].type == cast(u8) TokenType.UINTTYPE || tokens[it - 1].type == cast(u8) TokenType.STRINGTYPE {
-                        return Token.{cast(u8) TokenType.IDENT,str,line};
-                    }
-                    else if tokens[it - 1].type == cast(u8) TokenType.EQUALS && tokens[it - 2].type == cast(u8) TokenType.INTTYPE || tokens[it - 1].type == cast(u8) TokenType.EQUALS && tokens[it - 2].type == cast(u8) TokenType.CHARTYPE || tokens[it - 1].type == cast(u8) TokenType.EQUALS && tokens[it - 2].type == cast(u8) TokenType.UINTTYPE || tokens[it - 1].type == cast(u8) TokenType.EQUALS && tokens[it - 2].type == cast(u8) TokenType.STRINGTYPE {
-                        return Token.{cast(u8) TokenType.VARIABLE,str,line};
-                    }
+
                     else {
                         s:*string = *str;
                         // remove first char
@@ -73,9 +89,11 @@ handle_default :: (str: string,line:int,tokens: [..] Token,it:int) -> Token {
                     }
             }
             else {
-                return Token.{cast(u8) TokenType.NOTHING,str,line};
+                return Token.{cast(u8) NOTHING,str,line};
             }
 }
+
+
 
 lexer_error :: (tokens: [..] Token) -> [..] Token 
 {
@@ -120,18 +138,43 @@ tokenize :: (src:string) -> [..] Token
                 case ")"; array_add(*tokens,Token.{cast(u8) RPAREN,"",line});
                 case "()"; array_add(*tokens,Token.{cast(u8) EMPTYARGS,"",line});
                 case "!!"; array_add(*tokens,Token.{cast(u8) MAIN_TAG,"",line});
-                case "func"; array_add(*tokens,Token.{cast(u8) FUNC,"",line});
-                case "String"; array_add(*tokens,Token.{cast(u8) STRINGTYPE,"",line});
-                case "Int"; array_add(*tokens,Token.{cast(u8) INTTYPE,"",line});
-                case "uInt"; array_add(*tokens,Token.{cast(u8) UINTTYPE,"",line});
-                case "char"; array_add(*tokens,Token.{cast(u8) CHARTYPE,"",line});
-                case "="; array_add(*tokens,Token.{cast(u8) EQUALS,"",line});
+                case "func"; 
+                array_add(*tokens,Token.{cast(u8) FUNC,"",line});
+                array_add(*tokens,Token.{cast(u8) IDENT,str[it + 1],line});
+                array_add(*ident_list,str[it + 1]);
+                it += 1;
+                case "String"; 
+                array_add(*tokens,Token.{cast(u8) STRINGTYPE,"",line});
+                array_add(*tokens,Token.{cast(u8) IDENT,str[it + 1],line});
+                array_add(*ident_list,str[it + 1]);
+                it += 1;
+                case "Int"; 
+                array_add(*tokens,Token.{cast(u8) INTTYPE,"",line});
+                array_add(*tokens,Token.{cast(u8) IDENT,str[it + 1],line});
+                array_add(*ident_list,str[it + 1]);
+                it += 1;
+                case "uInt"; 
+                array_add(*tokens,Token.{cast(u8) UINTTYPE,"",line});
+                array_add(*tokens,Token.{cast(u8) IDENT,str[it + 1],line});
+                array_add(*ident_list,str[it + 1]);
+                it += 1;
+                case "char"; 
+                array_add(*tokens,Token.{cast(u8) CHARTYPE,"",line});
+                array_add(*tokens,Token.{cast(u8) IDENT,str[it + 1],line});
+                array_add(*ident_list,str[it + 1]);
+                it += 1;
+                case "="; 
+                array_add(*tokens,Token.{cast(u8) EQUALS,"",line});
+                array_add(*tokens,Token.{cast(u8) VARIABLE,str[it + 1],line});
+                it += 1;
                 case "";;
                 case; array_add(*tokens,handle_default(str[it],line,tokens,it));
             }  
         }
         line += 1;
     }
+    //print("%\n",tokens);
+
     toks_error_checked := lexer_error(tokens);
     print("Succesfully lexed the file\n");
     return toks_error_checked;

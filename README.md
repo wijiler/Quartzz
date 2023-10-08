@@ -17,7 +17,8 @@ Speed is an essential component of computer programming, although I value Explic
 ## V - 1.0 Roadmap 🛣
  - [x] Return statements
  - [x] Function support
- - [ ] Variables (Almost done)
+ - [x] Variables
+ - [ ] Typechecking
  - [ ] Codegen
  - [ ] Standard library
  - [ ] C Library Support
