@@ -1,8 +1,9 @@
 func main !! () 
 {
-return 0
+    String test = 1
+    return 0
 }
 
 func lol () {
-
+    return 1
 }
