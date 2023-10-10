@@ -26,6 +26,12 @@ TokenType :: enum u8 {
     NOTHING :: 1;
     UNKNOWN :: 0;
 }
+uType :: enum u8 {
+    Char :: 242;
+    uInt :: 243;
+    Int :: 244;
+    String :: 245;
+}
 Lexer :: struct 
 {
     tokens: [..] Token; // resizable array of tokens
@@ -92,30 +98,68 @@ handle_default :: (str: string,line:int,tokens: [..] Token,it:int) -> Token {
                 return Token.{cast(u8) NOTHING,str,line};
             }
 }
+is_number_uint :: (str:string) -> bool {
+    for 0..str.count - 1 {
+        if is_digit(str[it]) {
 
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
+}
+is_number :: (str:string) -> bool {
+    for 0..str.count - 1 {
+        if is_digit(str[it]) || str[it] == #char "-" {
 
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
+}
+typecheck :: (type:Token,Value:Token) -> bool {
+    checksout:bool;
+    if type.type== {
+        case 245; checksout = Value.expr[0] == #char "\"" && Value.expr[Value.expr.count - 1] == #char "\"" ;
+        case 244; checksout = is_number(Value.expr);
+        case 243; checksout = is_number_uint(Value.expr);
+        case 242; checksout = Value.expr[0] == #char "'" && Value.expr[Value.expr.count - 1] == #char "'" && Value.expr.count == 3;
+    }
+    return checksout;
+}
 
 lexer_error :: (tokens: [..] Token) -> [..] Token 
 {
-        toks := tokens;
-        error: bool;
+    toks := tokens;
+    error: bool;
 
-        for 0..toks.count - 1 {
-            if toks[it].type == 1 {
-                array_ordered_remove_by_index(*toks,it);
-            }
-            else if toks[it].type == 0 {
-                error = true;
-                print("Unknown Token found on line %:\n%\n",toks[it].pos,toks[it].expr);
+    for 0..toks.count - 1 {
+        if toks[it].type == 1 {
+            array_ordered_remove_by_index(*toks,it);
+        }
+        else if toks[it].type == 0 {
+            error = true;
+            print("Unknown Token found on line %:\n%\n",toks[it].pos,toks[it].expr);
+        }
+        else if toks[it].type == 245 || toks[it].type == 244 || toks[it].type == 243 || toks[it].type == 242 {
+            error = !typecheck(toks[it],toks[it+3]);
+            if error {
+                print("Wrong type for variable % on line %, wanted %, given %\n\nCould not compile due to above errors\n",toks[it+1].expr,toks[it].pos,cast(uType) toks[it].type,toks[it+3].expr);
+                // for some god damn reason it worked and then stopped working so now I have to add this
+                exit(1);
             }
         }
-        if error == true {
-            print("could not continue compiling due to the errors above\n");
-            // uncomment for extremely helpful debugging info
-            // print("%\n",tokens);
-            exit(1);
-        }
-        return toks;
+    }
+    if error == true {
+        print("could not continue compiling due to the errors above\n");
+        // uncomment for extremely helpful debugging info
+        // print("%\n",tokens);
+        exit(1);
+    }
+    return toks;
 }
 // Turn string into tokens
 tokenize :: (src:string) -> [..] Token 
