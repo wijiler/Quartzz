@@ -1,3 +1,8 @@
+# Just an update
+
+If you have been following quartzz at all, not many people but. I am still working on quartzz, the project is on pause for the moment, I have been working on QIR, and plan to rewrite quartzz in QIR
+
+
 # Quartzz -  Beautiful code,Beatiful performance
 
 
